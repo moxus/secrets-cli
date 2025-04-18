@@ -5,22 +5,21 @@ import (
 	"fmt"
 	"log" // Keep log for general logging, return error for cobra
 
-	"secrets-cli/internal/store" // Adjust import path
 	"secrets-cli/internal/key"   // Adjust import path
+	"secrets-cli/internal/store" // Adjust import path
 
 	"github.com/spf13/cobra"
 )
 
-var deleteKey string
-
 var DeleteCmd = &cobra.Command{
-	Use:   "delete",
+	Use:   "delete [key]",
 	Short: "Delete a secret by its key",
 	Long:  `Deletes a secret and its encrypted value based on its key.`,
-	Args:  cobra.ExactArgs(0), // Use flag
+	Args:  cobra.ExactArgs(1), // Require exactly one argument
 	RunE: func(cmd *cobra.Command, args []string) error {
+		deleteKey := args[0]
 		if deleteKey == "" {
-			return fmt.Errorf("--key flag is required")
+			return fmt.Errorf("key argument is required")
 		}
 
 		// Encryption key is not needed for deletion, but loading here
@@ -31,7 +30,7 @@ var DeleteCmd = &cobra.Command{
 		}
 
 		// Get the selected store backend
-		s, err := getSecretStore()
+		s, err := store.GetSecretStore()
 		if err != nil {
 			return fmt.Errorf("failed to get store: %w", err)
 		}
@@ -50,12 +49,11 @@ var DeleteCmd = &cobra.Command{
 			return fmt.Errorf("failed to delete secret from store: %w", err)
 		}
 
-		fmt.Printf("Secret '%s' deleted successfully using backend '%s'.\n", deleteKey, backendType)
+		fmt.Printf("Secret '%s' deleted successfully using backend '%s'.\n", deleteKey, store.BackendType)
 		return nil
 	},
 }
 
 func init() {
-	DeleteCmd.Flags().StringVarP(&deleteKey, "key", "k", "", "The key of the secret to delete")
-	DeleteCmd.MarkFlagRequired("key") // Make the key flag mandatory
+	// No flag needed for key anymore
 }

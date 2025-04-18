@@ -6,15 +6,17 @@ import (
 	"sort"
 
 	"secrets-cli/internal/key"   // Adjust import path
+	"secrets-cli/internal/store" // Adjust import path
 
 	"github.com/spf13/cobra"
 )
 
 var ListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List all secret keys",
-	Long:  `Retrieves and lists the keys of all available secrets in the store.`,
-	Args:  cobra.NoArgs, // No arguments expected
+	Use:     "list",
+	Short:   "List all secret keys",
+	Aliases: []string{"ls"},
+	Long:    `Retrieves and lists the keys of all available secrets in the store.`,
+	Args:    cobra.NoArgs, // No arguments expected
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Encryption key is not needed for listing keys, but loading here
 		// honors PersistentPreRunE check (can be skipped if not needed by interface)
@@ -24,7 +26,7 @@ var ListCmd = &cobra.Command{
 		}
 
 		// Get the selected store backend
-		s, err := getSecretStore()
+		s, err := store.GetSecretStore()
 		if err != nil {
 			return fmt.Errorf("failed to get store: %w", err)
 		}
@@ -41,9 +43,9 @@ var ListCmd = &cobra.Command{
 		}
 
 		if len(keys) == 0 {
-			fmt.Printf("No secrets found in backend '%s'.\n", backendType)
+			fmt.Printf("No secrets found in backend '%s'.\n", store.BackendType)
 		} else {
-			fmt.Printf("Available secrets (keys) using backend '%s':\n", backendType)
+			fmt.Printf("Available secrets (keys) using backend '%s':\n", store.BackendType)
 			sort.Strings(keys) // Sort keys for consistent output
 			for _, key := range keys {
 				fmt.Printf("- %s\n", key)
