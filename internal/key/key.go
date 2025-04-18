@@ -35,11 +35,21 @@ func LoadKeyFromEnv() ([]byte, error) {
 
 	key, err := base64.StdEncoding.DecodeString(keyBase64)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64 key from environment: %w (%w)", err, keyBase64)
+		return nil, fmt.Errorf("failed to decode base64 key from environment: %w", err)
+	}
+
+	if len(key) < SecretBoxKeySize {
+		// Extend key with zeros if too short
+		extended := make([]byte, SecretBoxKeySize)
+		copy(extended, key)
+		key = extended
+	} else if len(key) > SecretBoxKeySize {
+		// Trim key if too long
+		key = key[:SecretBoxKeySize]
 	}
 
 	if len(key) != SecretBoxKeySize {
-		return nil, fmt.Errorf("invalid key size: expected %d bytes, got %d bytes after decoding", SecretBoxKeySize, len(key))
+		return nil, fmt.Errorf("invalid key: could not adjust to required size %d bytes", SecretBoxKeySize)
 	}
 
 	return key, nil

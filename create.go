@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"secrets-cli/internal/crypto" // Adjust import path
 	"secrets-cli/internal/key"    // Adjust import path
@@ -44,7 +45,8 @@ var CreateCmd = &cobra.Command{
 		if updateIfExists {
 			err = s.Update(createKey, encryptedValue)
 			if err != nil {
-				return fmt.Errorf("failed to update secret in store: %w", err)
+				fmt.Fprintf(os.Stderr, "failed to update secret in store: %v\n", err)
+				os.Exit(1)
 			}
 			fmt.Printf("Secret '%s' updated successfully using backend '%s'.\n", createKey, store.BackendType)
 			return nil
@@ -52,10 +54,11 @@ var CreateCmd = &cobra.Command{
 
 		err = s.Create(createKey, encryptedValue)
 		if err != nil {
-			return fmt.Errorf("failed to create secret in store: %w", err)
+			fmt.Fprintf(os.Stderr, "failed to create secret in store: %v\n", err)
+			os.Exit(1)
 		}
 
-		fmt.Printf("Secret '%s' created successfully using backend '%s'.\n", createKey, store.BackendType)
+		//fmt.Printf("Secret '%s' created successfully using backend '%s'.\n", createKey, store.BackendType)
 		return nil
 	},
 }

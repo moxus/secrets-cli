@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log" // Keep log for general logging, return error for cobra
+	"os"
 
 	"secrets-cli/internal/key"   // Adjust import path
 	"secrets-cli/internal/store" // Adjust import path
@@ -43,13 +44,15 @@ var DeleteCmd = &cobra.Command{
 		// Use the store interface to delete the secret
 		err = s.Delete(deleteKey)
 		if errors.Is(err, store.ErrSecretNotFound) {
-			return err // Return specific error if not found
+			fmt.Fprintf(os.Stderr, "secret with key '%s' not found\n", deleteKey)
+			os.Exit(1)
 		}
 		if err != nil {
-			return fmt.Errorf("failed to delete secret from store: %w", err)
+			fmt.Fprintf(os.Stderr, "failed to delete secret from store: %v\n", err)
+			os.Exit(1)
 		}
 
-		fmt.Printf("Secret '%s' deleted successfully using backend '%s'.\n", deleteKey, store.BackendType)
+		//fmt.Printf("Secret '%s' deleted successfully using backend '%s'.\n", deleteKey, store.BackendType)
 		return nil
 	},
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log" // Keep log for general logging, return error for cobra
+	"os"
 
 	"secrets-cli/internal/crypto" // Adjust import path
 	"secrets-cli/internal/key"    // Adjust import path
@@ -41,18 +42,21 @@ var ReadCmd = &cobra.Command{
 
 		encryptedValue, err := s.Read(readKey)
 		if errors.Is(err, store.ErrSecretNotFound) {
-			return err
+			fmt.Fprintf(os.Stderr, "secret with key '%s' not found\n", readKey)
+			os.Exit(1)
 		}
 		if err != nil {
-			return fmt.Errorf("failed to read secret from store: %w", err)
+			fmt.Fprintf(os.Stderr, "failed to read secret from store: %v\n", err)
+			os.Exit(1)
 		}
 
 		secretValue, err := crypto.Decrypt(encryptedValue, encryptionKey)
 		if err != nil {
-			return fmt.Errorf("failed to decrypt value for key '%s': %w", readKey, err)
+			fmt.Fprintf(os.Stderr, "failed to decrypt value for key '%s': %v\n", readKey, err)
+			os.Exit(1)
 		}
 
-		fmt.Printf("Secret '%s': %s\n", readKey, string(secretValue))
+		fmt.Printf("%s\n", string(secretValue))
 		return nil
 	},
 }

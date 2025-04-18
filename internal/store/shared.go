@@ -1,6 +1,11 @@
 package store
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+)
 
 var (
 	BackendType     string // Flag to select backend type
@@ -11,8 +16,61 @@ var (
 	MongoCollection string // Flag for mongodb backend config
 )
 
+// Config structure for loading defaults
+type StoreConfig struct {
+	BackendType     string `json:"backend_type"`
+	SqliteDBPath    string `json:"sqlite_db_path"`
+	JsonFilePath    string `json:"json_file_path"`
+	MongoURI        string `json:"mongo_uri"`
+	MongoDatabase   string `json:"mongo_database"`
+	MongoCollection string `json:"mongo_collection"`
+}
+
+// LoadConfig loads config from ~/.secrets-cli.json if present
+func LoadConfig() error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	configPath := filepath.Join(home, ".secrets-cli.json")
+	file, err := os.Open(configPath)
+	if err != nil {
+		// If config file does not exist, skip loading
+		return nil
+	}
+	defer file.Close()
+
+	var cfg StoreConfig
+	if err := json.NewDecoder(file).Decode(&cfg); err != nil {
+		return fmt.Errorf("failed to decode config: %w", err)
+	}
+
+	if BackendType == "" {
+		BackendType = cfg.BackendType
+	}
+	if SqliteDBPath == "" {
+		SqliteDBPath = cfg.SqliteDBPath
+	}
+	if JsonFilePath == "" {
+		JsonFilePath = cfg.JsonFilePath
+	}
+	if MongoURI == "" {
+		MongoURI = cfg.MongoURI
+	}
+	if MongoDatabase == "" {
+		MongoDatabase = cfg.MongoDatabase
+	}
+	if MongoCollection == "" {
+		MongoCollection = cfg.MongoCollection
+	}
+	return nil
+}
+
 // getSecretStore is a helper function to create and initialize the chosen backend.
 func GetSecretStore() (SecretStore, error) {
+	// Load defaults from config file if not already set
+	//_ = LoadConfig()
+
 	var s SecretStore
 	var err error
 

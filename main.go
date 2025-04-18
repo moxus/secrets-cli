@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -12,6 +13,13 @@ import (
 )
 
 func main() {
+	// Load config file to initialize backend parameters before flags are parsed
+	err := store.LoadConfig()
+	if err != nil {
+		fmt.Println("error loading config", err)
+		panic(err)
+	}
+
 	var rootCmd = &cobra.Command{
 		Use:   "secrets-cli",
 		Short: "Secure Secrets Storage CLI with multiple backends",
@@ -34,12 +42,12 @@ using different storage backends (sqlite, jsonfile, mongodb-placeholder).
 	}
 
 	// Add persistent flags for backend selection and configuration
-	rootCmd.PersistentFlags().StringVar(&store.BackendType, "backend", "sqlite", "Storage backend type (sqlite, jsonfile, mongodb-placeholder)")
-	rootCmd.PersistentFlags().StringVar(&store.SqliteDBPath, "sqlite-db", "secrets.db", "SQLite database file path")
-	rootCmd.PersistentFlags().StringVar(&store.JsonFilePath, "json-file", "secrets.json", "JSON file path")
-	rootCmd.PersistentFlags().StringVar(&store.MongoURI, "mongo-uri", "mongodb://localhost:27017", "MongoDB connection URI")
-	rootCmd.PersistentFlags().StringVar(&store.MongoDatabase, "mongo-db", "secrets", "MongoDB database name")
-	rootCmd.PersistentFlags().StringVar(&store.MongoCollection, "mongo-collection", "secrets", "MongoDB collection name")
+	rootCmd.PersistentFlags().StringVar(&store.BackendType, "backend", store.BackendType, "Storage backend type (sqlite, jsonfile, mongodb-placeholder)")
+	rootCmd.PersistentFlags().StringVar(&store.SqliteDBPath, "sqlite-db", store.SqliteDBPath, "SQLite database file path")
+	rootCmd.PersistentFlags().StringVar(&store.JsonFilePath, "json-file", store.JsonFilePath, "JSON file path")
+	rootCmd.PersistentFlags().StringVar(&store.MongoURI, "mongo-uri", store.MongoURI, "MongoDB connection URI")
+	rootCmd.PersistentFlags().StringVar(&store.MongoDatabase, "mongo-db", store.MongoDatabase, "MongoDB database name")
+	rootCmd.PersistentFlags().StringVar(&store.MongoCollection, "mongo-collection", store.MongoCollection, "MongoDB collection name")
 
 	// Add subcommands
 	//rootCmd.AddCommand(generateKeyCmd)

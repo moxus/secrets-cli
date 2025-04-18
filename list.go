@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log" // Keep log for general logging, return error for cobra
+	"os"
 	"sort"
 
 	"secrets-cli/internal/key"   // Adjust import path
@@ -18,37 +19,35 @@ var ListCmd = &cobra.Command{
 	Long:    `Retrieves and lists the keys of all available secrets in the store.`,
 	Args:    cobra.NoArgs, // No arguments expected
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// Encryption key is not needed for listing keys, but loading here
-		// honors PersistentPreRunE check (can be skipped if not needed by interface)
 		_, err := key.LoadKeyFromEnv()
 		if err != nil {
-			return fmt.Errorf("failed to load encryption key: %w", err)
+			fmt.Fprintf(os.Stderr, "failed to load encryption key: %v\n", err)
+			os.Exit(1)
 		}
 
-		// Get the selected store backend
 		s, err := store.GetSecretStore()
 		if err != nil {
-			return fmt.Errorf("failed to get store: %w", err)
+			fmt.Fprintf(os.Stderr, "failed to get store: %v\n", err)
+			os.Exit(1)
 		}
 		defer func() {
 			if closeErr := s.Close(); closeErr != nil {
 				log.Printf("Error closing store connection: %v", closeErr)
 			}
-		}() // Ensure store is closed
+		}()
 
-		// Use the store interface to list keys
 		keys, err := s.ListKeys()
 		if err != nil {
-			return fmt.Errorf("failed to list secrets from store: %w", err)
+			fmt.Fprintf(os.Stderr, "failed to list secrets from store: %v\n", err)
+			os.Exit(1)
 		}
 
 		if len(keys) == 0 {
 			fmt.Printf("No secrets found in backend '%s'.\n", store.BackendType)
 		} else {
-			fmt.Printf("Available secrets (keys) using backend '%s':\n", store.BackendType)
-			sort.Strings(keys) // Sort keys for consistent output
+			sort.Strings(keys)
 			for _, key := range keys {
-				fmt.Printf("- %s\n", key)
+				fmt.Printf("%s\n", key)
 			}
 		}
 
