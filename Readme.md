@@ -2,6 +2,14 @@
 
 A command-line tool to manage encrypted key-value secrets using different storage backends (sqlite, jsonfile, mongodb-placeholder).
 
+## Install
+
+install the latest binary with this command (only macos and linux)
+
+```bash
+curl -sSL https://raw.githubusercontent.com/moxus/secrets-cli/refs/heads/main/install.sh | bash
+```
+
 ## Environment Variable
 
 ### `SECRETBOX_KEY`
