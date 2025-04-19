@@ -55,6 +55,7 @@ using different storage backends (sqlite, jsonfile, mongodb-placeholder).
 	rootCmd.AddCommand(ReadCmd)
 	rootCmd.AddCommand(DeleteCmd)
 	rootCmd.AddCommand(ListCmd)
+	rootCmd.AddCommand(GenerateCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		// Error handling is now mostly within RunE functions,

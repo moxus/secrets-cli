@@ -99,3 +99,44 @@ secrets-cli read mykey
 secrets-cli list
 secrets-cli delete mykey
 ```
+
+## Generate Command
+
+The `generate` (alias: `gen`) command creates a random password of a specified length and stores it as a secret under the given key.
+
+### Usage
+
+```sh
+secrets-cli generate [key] [length] [flags]
+```
+
+- `[key]`: The key under which to store the generated password.
+- `[length]`: The length of the password to generate.
+
+### Flags
+
+- `-u`, `--uppercase`  
+  Include uppercase letters (A-Z) in the generated password.
+
+- `-l`, `--lowercase`  
+  Include lowercase letters (a-z) in the generated password.
+
+- `-n`, `--numbers`  
+  Include numbers (0-9) in the generated password.
+
+- `--update`  
+  Update the secret if it already exists for the given key.
+
+### Example
+
+Generate a 20-character password with uppercase, lowercase, and numbers, and store it under the key `db_password`:
+
+```sh
+secrets-cli generate db_password 20 --uppercase --lowercase --numbers
+```
+
+If you want to overwrite an existing secret:
+
+```sh
+secrets-cli generate db_password 20 --uppercase --lowercase --numbers --update
+```
