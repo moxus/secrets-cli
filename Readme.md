@@ -12,7 +12,7 @@ curl -sSL https://raw.githubusercontent.com/moxus/secrets-cli/refs/heads/main/in
 
 ## Environment Variable
 
-### `SECRETBOX_KEY`
+### `SECRETS_ENCRYPTION_KEY`
 
 - **Required**: Yes
 - **Description**: The encryption key used for encrypting and decrypting secrets.
@@ -20,7 +20,7 @@ curl -sSL https://raw.githubusercontent.com/moxus/secrets-cli/refs/heads/main/in
 - **Example**:
 
   ```sh
-  export SECRETBOX_KEY="your-base64-encoded-key-here"
+  export SECRETS_ENCRYPTION_KEY="your-base64-encoded-key-here"
   ```
 
 - If the key is shorter than 32 bytes, it will be zero-padded. If longer, it will be truncated. The variable must be set.
@@ -93,7 +93,7 @@ All parameters can be set via command-line flags, which override config file val
 ## Example Usage
 
 ```sh
-export SECRETBOX_KEY="your-base64-key"
+export SECRETS_ENCRYPTION_KEY="your-base64-key"
 secrets-cli create mykey myvalue
 secrets-cli read mykey
 secrets-cli list
